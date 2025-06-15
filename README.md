@@ -44,13 +44,13 @@
 
 ## 二、核心痛点与“平替”方案
 
-正如我们开头提到的，直接使用官方 Claude Code 的主要障碍是成本和访问。而我们的解决方案是 **Claude Code Router**。
+正如我们开头提到的，直接使用官方 Claude Code 的主要障碍是成本和访问。而我们的解决方案是 **[Claude Code Router](https://github.com/musistudio/claude-code-router)**。
 
 
 ![https://github.com/musistudio/claude-code-router](https://files.mdnice.com/user/43439/48150452-df46-4504-8cbd-c922f4a5cd7d.png)
 
 
-**Claude Code Router** 是一个巧妙的**本地代理服务**。它的工作原理如下：
+**[Claude Code Router](https://github.com/musistudio/claude-code-router)** 是一个巧妙的**本地代理服务**。它的工作原理如下：
 
 1.  你在终端运行 `claude-code`。
 2.  `claude-code` 以为它在和 Anthropic 的官方服务器通信。
