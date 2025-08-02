@@ -113,23 +113,26 @@ ccr code
 
 ```json
 {
-  "OPENAI_API_KEY": "sk-xxx",
-  "OPENAI_BASE_URL": "https://api.deepseek.com",
-  "OPENAI_MODEL": "deepseek-chat",
-  "Providers": [
-    {
-      "name": "deepseek",
-      "api_base_url": "https://api.deepseek.com",
-      "api_key": "sk-xxx",
-      "models": ["deepseek-reasoner", "deepseek-chat"]
+    "log": true,
+    "Providers": [
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"]
+            }
+        }
+    ],
+    "Router": {
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "deepseek,deepseek-chat"
     }
-  ],
-  "Router": {
-    "background": "deepseek,deepseek-chat",
-    "think": "deepseek,deepseek-reasoner",
-    "longContext": "deepseek,deepseek-chat"
-  }
 }
+
 ```
 
 *   `background`: 用于处理背景任务，对智能要求不高，`deepseek-chat` 足够。
@@ -142,29 +145,38 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
 
 ```json
 {
-    "OPENAI_API_KEY": "sk-xxx",
-    "OPENAI_BASE_URL": "https://api.deepseek.com",
-    "OPENAI_MODEL": "deepseek-chat",
+    "log": true,
     "Providers": [
-      {
-        "name": "deepseek",
-        "api_base_url": "https://api.deepseek.com",
-        "api_key": "sk-xxx",
-        "models": ["deepseek-reasoner", "deepseek-chat"]
-      },
-      {
-        "name": "siliconflow",
-        "api_base_url": "https://api.siliconflow.cn/v1",
-        "api_key": "sk-xxx",
-        "models": ["Qwen/Qwen3-32B","Qwen/Qwen3-235B-A22B","Qwen/Qwen3-8B"]
-      }
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"],
+                "deepseek-chat": {
+                    "use": ["tooluse"]
+                }
+            }
+        },
+        {
+            "name": "siliconflow",
+            "api_base_url": "https://api.siliconflow.cn/v1",
+            "api_key": "sk-xxx",
+            "models": ["Qwen/Qwen3-32B", "Qwen/Qwen3-235B-A22B", "Qwen/Qwen3-8B"],
+            "transformer": {
+                "use": ["qwen"]
+            }
+        }
     ],
     "Router": {
-      "background": "deepseek,deepseek-chat",
-      "think": "deepseek,deepseek-reasoner",
-      "longContext": "siliconflow,Qwen/Qwen3-32B"
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "siliconflow,Qwen/Qwen3-32B"
     }
-  }
+}
+
 ```
 
 > 在这个配置中，日常任务走 64k 的 DeepSeek，一旦遇到需要处理超长上下文的场景，会自动切换到 128k的 Qwen 模型。
@@ -194,31 +206,40 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
 
 ```json
 {
-    "OPENAI_API_KEY": "sk-xxx",
-    "OPENAI_BASE_URL": "https://api.deepseek.com",
-    "OPENAI_MODEL": "deepseek-chat",
+    "log": true,
     "Providers": [
-      {
-        "name": "deepseek",
-        "api_base_url": "https://api.deepseek.com",
-        "api_key": "sk-xxx",
-        "models": ["deepseek-reasoner", "deepseek-chat"]
-      },
-      {
-        "name": "gemini",
-        "api_base_url": "https://xxx/v1",
-        "api_key": "xxx",
-        "models": ["gemini-2.5-pro-preview-06-05", "gemini-2.5-flash-preview-05-20"]
-      }
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"],
+                "deepseek-chat": {
+                    "use": ["tooluse"]
+                }
+            }
+        },
+        {
+            "name": "gemini",
+            "api_base_url": "https://xxx/v1",
+            "api_key": "xxx",
+            "models": ["gemini-2.5-pro-preview-06-05", "gemini-2.5-flash-preview-05-20"],
+            "transformer": {
+                "use": ["gemini"]
+            }
+        }
     ],
     "Router": {
-      "background": "deepseek,deepseek-chat",
-      "think": "deepseek,deepseek-reasoner",
-      "longContext": "gemini,gemini-2.5-pro-preview-06-05"
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "gemini,gemini-2.5-pro-preview-06-05"
     }
-  }
-```
+}
 
+```
+如果不知道怎么用，可以查看配置文件
 ### 动态切换模型
 
 在 `claude-code` 会话中，你随时可以使用 `/model` 命令动态切换当前使用的模型。
