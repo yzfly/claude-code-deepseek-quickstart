@@ -1,18 +1,20 @@
 {
-    "OPENAI_API_KEY": "sk-xxx",
-    "OPENAI_BASE_URL": "https://api.deepseek.com",
-    "OPENAI_MODEL": "deepseek-chat",
+    "log": true,
     "Providers": [
-      {
-        "name": "deepseek",
-        "api_base_url": "https://api.deepseek.com",
-        "api_key": "sk-xxx",
-        "models": ["deepseek-reasoner", "deepseek-chat"]
-      }
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"]
+            }
+        }
     ],
     "Router": {
-      "background": "deepseek,deepseek-chat",
-      "think": "deepseek,deepseek-reasoner",
-      "longContext": "deepseek,deepseek-chat"
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "deepseek,deepseek-chat"
     }
-  }
+}
