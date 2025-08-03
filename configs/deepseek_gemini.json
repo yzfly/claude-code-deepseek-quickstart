@@ -1,24 +1,32 @@
 {
-    "OPENAI_API_KEY": "sk-xxx",
-    "OPENAI_BASE_URL": "https://api.deepseek.com",
-    "OPENAI_MODEL": "deepseek-chat",
+    "log": true,
     "Providers": [
-      {
-        "name": "deepseek",
-        "api_base_url": "https://api.deepseek.com",
-        "api_key": "sk-xxx",
-        "models": ["deepseek-reasoner", "deepseek-chat"]
-      },
-      {
-        "name": "gemini",
-        "api_base_url": "https://xxx/v1",
-        "api_key": "xxx",
-        "models": ["gemini-2.5-pro-preview-06-05", "gemini-2.5-flash-preview-05-20"]
-      }
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"],
+                "deepseek-chat": {
+                    "use": ["tooluse"]
+                }
+            }
+        },
+        {
+            "name": "gemini",
+            "api_base_url": "https://xxx/v1",
+            "api_key": "xxx",
+            "models": ["gemini-2.5-pro-preview-06-05", "gemini-2.5-flash-preview-05-20"],
+            "transformer": {
+                "use": ["gemini"]
+            }
+        }
     ],
     "Router": {
-      "background": "deepseek,deepseek-chat",
-      "think": "deepseek,deepseek-reasoner",
-      "longContext": "gemini,gemini-2.5-pro-preview-06-05"
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "gemini,gemini-2.5-pro-preview-06-05"
     }
-  }
+}

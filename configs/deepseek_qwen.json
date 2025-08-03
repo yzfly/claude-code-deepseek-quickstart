@@ -1,24 +1,32 @@
 {
-    "OPENAI_API_KEY": "sk-xxx",
-    "OPENAI_BASE_URL": "https://api.deepseek.com",
-    "OPENAI_MODEL": "deepseek-chat",
+    "log": true,
     "Providers": [
-      {
-        "name": "deepseek",
-        "api_base_url": "https://api.deepseek.com",
-        "api_key": "sk-xxx",
-        "models": ["deepseek-reasoner", "deepseek-chat"]
-      },
-      {
-        "name": "siliconflow",
-        "api_base_url": "https://api.siliconflow.cn/v1",
-        "api_key": "sk-xxx",
-        "models": ["Qwen/Qwen3-32B","Qwen/Qwen3-235B-A22B","Qwen/Qwen3-8B"]
-      }
+        {
+            "name": "deepseek",
+            "api_base_url": "https://api.deepseek.com",
+            "api_key": "sk-xxx",
+            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "transformer": {
+                "use": ["deepseek"],
+                "deepseek-chat": {
+                    "use": ["tooluse"]
+                }
+            }
+        },
+        {
+            "name": "siliconflow",
+            "api_base_url": "https://api.siliconflow.cn/v1",
+            "api_key": "sk-xxx",
+            "models": ["Qwen/Qwen3-32B", "Qwen/Qwen3-235B-A22B", "Qwen/Qwen3-8B"],
+            "transformer": {
+                "use": ["qwen"]
+            }
+        }
     ],
     "Router": {
-      "background": "deepseek,deepseek-chat",
-      "think": "deepseek,deepseek-reasoner",
-      "longContext": "siliconflow,Qwen/Qwen3-32B"
+        "default": "deepseek,deepseek-chat",
+        "background": "deepseek,deepseek-chat",
+        "think": "deepseek,deepseek-reasoner",
+        "longContext": "siliconflow,Qwen/Qwen3-32B"
     }
-  }
+}
