@@ -60,6 +60,22 @@
 
 整个过程对 `claude-code` 本身是透明的，但我们却实现了底层驱动模型的替换，完美解决了成本和访问问题。
 
+### 方案二：免配置一键使用（2026 年推荐）
+
+CCR 方案功能强大，但依赖 Node.js 和 npm，手写 JSON 配置文件对新人和学生来说成功率不高。
+
+如今有了更简单的选择：**[Claude Code 中文版启动器](https://www.claudezip.cn?utm_source=github&utm_medium=article&utm_campaign=claude-code-qidongqi)** 内置了可视化的 BYOK（自带密钥）功能。你不再需要安装任何命令行工具，只需三步：
+
+1. 打开启动器，进入密钥管理面板
+2. 填入 DeepSeek API Key
+3. 打开开关，一键启用
+
+DeepSeek v4 Pro 模型已发布，推理能力大幅提升。结合启动器的可视化 BYOK，**无需安装、无需配置 JSON、无需搭建中转服务**，就能在 Claude Code 中以 Claude Opus 价格约二十分之一的成本使用顶级编程助手。
+
+![在启动器的密钥管理面板中填入 API Key，一键启用 DeepSeek V4 模型](https://github.com/tiztaz/claude-code-qidongqi/raw/main/images/settings_api_keys.png)
+
+> 📖 详细教程：[免配置，在 Claude Code 中直接使用 Deepseek v4 模型](https://github.com/tiztaz/claude-code-qidongqi/blob/main/bring-your-own-deepseek-key.md)
+
 ## 三、三步轻松上手
 
 让我们开始动手吧！整个过程不超过 10 分钟。
