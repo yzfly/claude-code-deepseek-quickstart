@@ -5,10 +5,10 @@
             "name": "deepseek",
             "api_base_url": "https://api.deepseek.com",
             "api_key": "sk-xxx",
-            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "models": ["deepseek-v4-pro", "deepseek-v4-flash"],
             "transformer": {
                 "use": ["deepseek"],
-                "deepseek-chat": {
+                "deepseek-v4-flash": {
                     "use": ["tooluse"]
                 }
             }
@@ -24,9 +24,9 @@
         }
     ],
     "Router": {
-        "default": "deepseek,deepseek-chat",
-        "background": "deepseek,deepseek-chat",
-        "think": "deepseek,deepseek-reasoner",
+        "default": "deepseek,deepseek-v4-flash",
+        "background": "deepseek,deepseek-v4-flash",
+        "think": "deepseek,deepseek-v4-pro",
         "longContext": "siliconflow,Qwen/Qwen3-32B"
     }
 }

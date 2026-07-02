@@ -18,7 +18,7 @@
 *   **访问限制**：需要海外信用卡和“特殊”网络环境。
 *   **封号风险**：账号策略不明，随时可能失去访问权限。
 
-本教程的使命，就是解决以上所有痛点。我们将通过一个名为 `Claude Code Router` 的开源项目，将 `claude-code` 的请求“路由”到像 **DeepSeek** 这样更具性价比、访问更便捷的大模型上。
+本教程的使命，就是解决以上所有痛点。核心思路是让 `claude-code` 使用像 **DeepSeek** 这样更具性价比、访问更便捷的大模型：既可以走 DeepSeek 官方的 Anthropic 兼容接口**直连**（推荐），也可以通过开源项目 `Claude Code Router` 灵活**路由**多家模型。
 
 **最终目标**：让你在 60 分钟内，以极低的成本，在自己的电脑上流畅地用上这款顶级的 AI 编程神器。
 
@@ -44,7 +44,30 @@
 
 ## 二、核心痛点与“平替”方案
 
-正如我们开头提到的，直接使用官方 Claude Code 的主要障碍是成本和访问。而我们的解决方案是 **[Claude Code Router](https://github.com/musistudio/claude-code-router)**。
+正如我们开头提到的，直接使用官方 Claude Code 的主要障碍是成本和访问。现在有两条路线可选：
+
+### 方案一：DeepSeek 官方直连（推荐，零依赖）
+
+> 🆕 **2026 更新**：DeepSeek 官方已支持 [Anthropic API 兼容格式](https://api-docs.deepseek.com/guides/anthropic_api)，Claude Code 可以**直接连接 DeepSeek**，不再需要任何中间代理。这是目前最简单、最稳定的方案。
+
+只需安装官方 Claude Code，然后设置两个环境变量：
+
+```shell
+npm install -g @anthropic-ai/claude-code
+
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_API_KEY=你的_DeepSeek_API_Key
+
+claude
+```
+
+模型会自动映射：Claude Code 请求 Opus 系列时由 `deepseek-v4-pro` 响应，请求 Sonnet / Haiku 系列时由 `deepseek-v4-flash` 响应。两个模型均支持 **1M 上下文**与思考模式，输出价格分别为每百万 token $0.87 / $0.28（缓存命中的输入低至 $0.004 以下），成本约为 Claude 官方模型的几十分之一。
+
+把环境变量写进 `~/.bashrc` 或 `~/.zshrc` 即可长期生效。**如果你只想用 DeepSeek，看到这里就可以直接开始用了**；想组合多家模型（如 Gemini、Qwen）再看方案二。
+
+### 方案二：Claude Code Router（多模型灵活路由）
+
+如果你想按任务类型路由不同厂商的模型，可以使用 **[Claude Code Router](https://github.com/musistudio/claude-code-router)**。
 
 
 ![https://github.com/musistudio/claude-code-router](https://files.mdnice.com/user/43439/48150452-df46-4504-8cbd-c922f4a5cd7d.png)
@@ -60,7 +83,9 @@
 
 整个过程对 `claude-code` 本身是透明的，但我们却实现了底层驱动模型的替换，完美解决了成本和访问问题。
 
-## 三、三步轻松上手
+## 三、三步轻松上手（方案二：Claude Code Router）
+
+> 使用方案一（官方直连）的读者可以跳过本节和下一节。
 
 让我们开始动手吧！整个过程不超过 10 分钟。
 
@@ -109,7 +134,9 @@ ccr code
 
 ### 方案一：极致性价比（纯 DeepSeek）
 
-这是最简单、成本最低的配置。适用于日常的大部分编程任务。DeepSeek 的 `deepseek-reasoner` 模型在代码和推理任务上表现出色。
+这是最简单、成本最低的配置。适用于日常的大部分编程任务。DeepSeek 的 `deepseek-v4-pro` 模型在代码和推理任务上表现出色。
+
+> ⚠️ 旧模型名 `deepseek-chat` 和 `deepseek-reasoner` 已于 2026 年 7 月弃用，请使用 `deepseek-v4-flash`（日常任务）和 `deepseek-v4-pro`（复杂推理）。
 
 ```json
 {
@@ -119,29 +146,29 @@ ccr code
             "name": "deepseek",
             "api_base_url": "https://api.deepseek.com",
             "api_key": "sk-xxx",
-            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "models": ["deepseek-v4-pro", "deepseek-v4-flash"],
             "transformer": {
                 "use": ["deepseek"]
             }
         }
     ],
     "Router": {
-        "default": "deepseek,deepseek-chat",
-        "background": "deepseek,deepseek-chat",
-        "think": "deepseek,deepseek-reasoner",
-        "longContext": "deepseek,deepseek-chat"
+        "default": "deepseek,deepseek-v4-flash",
+        "background": "deepseek,deepseek-v4-flash",
+        "think": "deepseek,deepseek-v4-pro",
+        "longContext": "deepseek,deepseek-v4-flash"
     }
 }
 
 ```
 
-*   `background`: 用于处理背景任务，对智能要求不高，`deepseek-chat` 足够。
-*   `think`: 用于执行核心的思考和规划任务，我们使用最强的 `deepseek-reasoner`。
+*   `background`: 用于处理背景任务，对智能要求不高，`deepseek-v4-flash` 足够。
+*   `think`: 用于执行核心的思考和规划任务，我们使用最强的 `deepseek-v4-pro`。
 *   `longContext`: 当上下文长度较长时使用。
 
 ### 方案二：混合搭配（DeepSeek + Qwen 长文本）
 
-DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的文件或项目时，可能会超出限制。这时，我们可以引入支持更长上下文的模型，比如硅基流动（SiliconFlow）提供的 128k 上下文的 Qwen 模型。
+DeepSeek V4 系列已支持 1M 上下文，长上下文不再是瓶颈。不过如果你想在不同任务上使用不同厂商的模型（比如某些任务偏好 Qwen 的表现，或想利用硅基流动的赠送额度），依然可以混合搭配。
 
 ```json
 {
@@ -151,10 +178,10 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
             "name": "deepseek",
             "api_base_url": "https://api.deepseek.com",
             "api_key": "sk-xxx",
-            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "models": ["deepseek-v4-pro", "deepseek-v4-flash"],
             "transformer": {
                 "use": ["deepseek"],
-                "deepseek-chat": {
+                "deepseek-v4-flash": {
                     "use": ["tooluse"]
                 }
             }
@@ -170,16 +197,16 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
         }
     ],
     "Router": {
-        "default": "deepseek,deepseek-chat",
-        "background": "deepseek,deepseek-chat",
-        "think": "deepseek,deepseek-reasoner",
+        "default": "deepseek,deepseek-v4-flash",
+        "background": "deepseek,deepseek-v4-flash",
+        "think": "deepseek,deepseek-v4-pro",
         "longContext": "siliconflow,Qwen/Qwen3-32B"
     }
 }
 
 ```
 
-> 在这个配置中，日常任务走 64k 的 DeepSeek，一旦遇到需要处理超长上下文的场景，会自动切换到 128k的 Qwen 模型。
+> 在这个配置中，日常任务走 DeepSeek，超长上下文场景会自动切换到 Qwen 模型。你也可以按自己的偏好调整各路由指向的模型。
 
 ### 方案三：顶配之选（集成 Gemini 百万上下文）
 
@@ -212,10 +239,10 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
             "name": "deepseek",
             "api_base_url": "https://api.deepseek.com",
             "api_key": "sk-xxx",
-            "models": ["deepseek-reasoner", "deepseek-chat"],
+            "models": ["deepseek-v4-pro", "deepseek-v4-flash"],
             "transformer": {
                 "use": ["deepseek"],
-                "deepseek-chat": {
+                "deepseek-v4-flash": {
                     "use": ["tooluse"]
                 }
             }
@@ -231,9 +258,9 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
         }
     ],
     "Router": {
-        "default": "deepseek,deepseek-chat",
-        "background": "deepseek,deepseek-chat",
-        "think": "deepseek,deepseek-reasoner",
+        "default": "deepseek,deepseek-v4-flash",
+        "background": "deepseek,deepseek-v4-flash",
+        "think": "deepseek,deepseek-v4-pro",
         "longContext": "gemini,gemini-2.5-pro-preview-06-05"
     }
 }
@@ -246,7 +273,7 @@ DeepSeek 的上下文窗口有限（约 64k）。当你需要处理非常大的�
 在 `claude-code` 会话中，你随时可以使用 `/model` 命令动态切换当前使用的模型。
 
 ```
-/model deepseek,deepseek-reasoner
+/model deepseek,deepseek-v4-pro
 ```
 或者
 ```
