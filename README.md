@@ -61,9 +61,44 @@ export ANTHROPIC_API_KEY=你的_DeepSeek_API_Key
 claude
 ```
 
-模型会自动映射：Claude Code 请求 Opus 系列时由 `deepseek-v4-pro` 响应，请求 Sonnet / Haiku 系列时由 `deepseek-v4-flash` 响应。两个模型均支持 **1M 上下文**与思考模式，输出价格分别为每百万 token $0.87 / $0.28（缓存命中的输入低至 $0.004 以下），成本约为 Claude 官方模型的几十分之一。
+模型会自动映射：Claude Code 请求 Opus 系列时由 `deepseek-v4-pro` 响应，请求 Sonnet / Haiku 系列时由 `deepseek-v4-flash` 响应；也可以用 `ANTHROPIC_MODEL=deepseek-v4-pro` 显式指定。两个模型均支持 **1M 上下文**与思考模式（`low / high / max` 三档推理强度）。
+
+**价格（2026-08-16 起，每百万 token，美元；低谷时段为高峰的一半）**
+
+| | V4-Flash | V4-Pro |
+|---|---|---|
+| 输入・缓存命中 | $0.014 / $0.007 | $0.044 / $0.022 |
+| 输入・缓存未命中 | $0.44 / $0.22 | $1.32 / $0.66 |
+| 输出 | $1.32 / $0.66 | $3.96 / $1.98 |
+
+高峰时段为 UTC 01:00–04:00 与 06:00–10:00（周一至周五，约合北京时间 9–12 点、14–18 点），其余时间与周末为低谷价。Claude Code 会反复发送系统提示与工具定义，DeepSeek 的硬盘缓存命中率极高，**实际花费通常只有标价的 10%–20%**，比 Claude 官方模型便宜一到两个数量级。最新价格以 [官方价格页](https://api-docs.deepseek.com/quick_start/pricing) 为准。
+
+也可以把配置写进 `~/.claude/settings.json`，不污染 shell 环境：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_API_KEY": "你的_DeepSeek_API_Key",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro",
+    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-v4-flash"
+  }
+}
+```
+
+> 已知限制：DeepSeek 的 Anthropic 兼容接口不支持 document 内容块与 MCP 工具透传（Claude Code 自己管理的本地 MCP 不受影响）。Skills、Hooks、子 Agent 等功能均可正常使用。
 
 把环境变量写进 `~/.bashrc` 或 `~/.zshrc` 即可长期生效。**如果你只想用 DeepSeek，看到这里就可以直接开始用了**；想组合多家模型（如 Gemini、Qwen）再看方案二。
+
+### 方案零：DeepSeek 官方 Agent 框架 deepseek-harness（dsh）
+
+> 🆕 2026-08-13，DeepSeek 开源了自家的 Agent 框架 **[deepseek-harness（dsh）](https://github.com/deepseek-ai/deepseek-harness)**（MIT，两周破 19 万 star）。它不是 Claude Code 的"壳"，而是一个"一切皆插件"的 harness：内置 MCP 客户端、兼容 Claude Code / Codex 的 Hook 协议与 Agent Skills，自带 Web UI 与 headless 模式。如果你本来就只打算用 DeepSeek，dsh 是零成本、无需任何兼容层的原生选择。
+
+```shell
+npx @deepseek-ai/dsh web     # 启动 Web UI，默认 http://127.0.0.1:3080，在 Providers 页填入 DeepSeek API Key
+```
+
+目前处于开发者预览阶段，接口会有破坏性变更；技能 / 插件精选见 [awesome-dsh-skills](https://github.com/yzfly/awesome-dsh-skills)，详细介绍见 [DeepSeek 生态指南](https://github.com/EmbraceAGI/awesome-chatgpt-zh/blob/main/docs/DeepSeek.md#deepseek-harness官方-agent-框架)。
 
 ### 方案二：Claude Code Router（多模型灵活路由）
 
@@ -136,7 +171,7 @@ ccr code
 
 这是最简单、成本最低的配置。适用于日常的大部分编程任务。DeepSeek 的 `deepseek-v4-pro` 模型在代码和推理任务上表现出色。
 
-> ⚠️ 旧模型名 `deepseek-chat` 和 `deepseek-reasoner` 已于 2026 年 7 月弃用，请使用 `deepseek-v4-flash`（日常任务）和 `deepseek-v4-pro`（复杂推理）。
+> ⚠️ 旧模型名 `deepseek-chat` 和 `deepseek-reasoner` 已于 2026 年 7 月 24 日正式停用，请使用 `deepseek-v4-flash`（日常任务）和 `deepseek-v4-pro`（复杂推理）。
 
 ```json
 {
@@ -325,6 +360,7 @@ DeepSeek V4 系列已支持 1M 上下文，长上下文不再是瓶颈。不过�
 *   [**@anthropic-ai/claude-code**](https://docs.anthropic.com/en/claude-code)：官方出品的强大 AI 编程智能体。
 *   [**@musistudio/claude-code-router**](https://github.com/musistudio/claude-code-router)：实现了模型路由的关键项目，是本指南的基石。
 *   [**openai-gemini**](https://github.com/PublicAffairs/openai-gemini)：提供了便捷的 Gemini-to-OpenAI 转换方案。
+*   [**deepseek-harness**](https://github.com/deepseek-ai/deepseek-harness)：DeepSeek 官方 Agent 框架。
 
 感谢所有为 AI 和开源社区做出贡献的开发者！
 
